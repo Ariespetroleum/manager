@@ -61,7 +61,13 @@ function renderDashboard(data,station){
   const unpaidAmt=unpaidFuel.reduce((s,r)=>s+Number(r.Amount||0),0);
   const driveAmt=driveOff.reduce((s,r)=>s+Number(r.Amount||0),0);
   document.getElementById('ds-temp').textContent=temperature.length;
-  document.getElementById('ds-maint-open').textContent=openMaint.length;
+
+  // Maintenance — show total records, sub shows open count
+  const maintTotal=filterByRange(data.maintenance||[],'SubmittedAt',range);
+  const maintFiltered=station?filterByStation(maintTotal,'Station',station):maintTotal;
+  document.getElementById('ds-maint-open').textContent=maintFiltered.length||'—';
+  document.getElementById('ds-maint-sub').textContent=openMaint.length>0?openMaint.length+' 未完成':'全部已完成';
+
   document.getElementById('ds-incidents-total').textContent=driveOff.length+unpaidFuel.length;
   document.getElementById('ds-incidents-amt').textContent=(driveAmt+unpaidAmt)>0?'损失 $'+(driveAmt+unpaidAmt).toFixed(2):'';
 
@@ -71,12 +77,12 @@ function renderDashboard(data,station){
   document.getElementById('ds-cash-count').textContent=cashData.length;
   document.getElementById('ds-cash-amt').textContent=totalSales>0?'总销售 $'+totalSales.toFixed(2):cashData.length+' 条记录';
 
+  // Cigarette — latest stocktake only
   const cigData=data.cigarette||[];
   const cigLatestDate=cigData.reduce((max,r)=>{
-  const d=toLocalDateKey(r.Date||r.SubmittedAt||'');
-  return d>max?d:max;
+    const d=toLocalDateKey(r.Date||r.SubmittedAt||'');
+    return d>max?d:max;
   },'');
-
   const cigLatestRows=cigData.filter(r=>toLocalDateKey(r.Date||r.SubmittedAt||'')===cigLatestDate);
   const cigLatest=cigLatestRows.reduce((s,r)=>s+Number(r.Quantity||0),0);
   document.getElementById('ds-cig').textContent=cigLatest||'—';
