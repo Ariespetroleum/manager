@@ -71,11 +71,16 @@ function renderDashboard(data,station){
   document.getElementById('ds-cash-count').textContent=cashData.length;
   document.getElementById('ds-cash-amt').textContent=totalSales>0?'总销售 $'+totalSales.toFixed(2):cashData.length+' 条记录';
 
-  // Cigarette
   const cigData=data.cigarette||[];
-  const cigLatest=cigData.length>0?cigData.reduce((s,r)=>s+Number(r.Quantity||0),0):0;
+  const cigLatestDate=cigData.reduce((max,r)=>{
+  const d=toLocalDateKey(r.Date||r.SubmittedAt||'');
+  return d>max?d:max;
+  },'');
+
+  const cigLatestRows=cigData.filter(r=>toLocalDateKey(r.Date||r.SubmittedAt||'')===cigLatestDate);
+  const cigLatest=cigLatestRows.reduce((s,r)=>s+Number(r.Quantity||0),0);
   document.getElementById('ds-cig').textContent=cigLatest||'—';
-  document.getElementById('ds-cig-sub').textContent=cigData.length>0?'最新盘点合计':'暂无数据';
+  document.getElementById('ds-cig-sub').textContent=cigLatestDate?('最新盘点 '+cigLatestDate.slice(5).replace('-','/')+'  合计'):'暂无数据';
 
   // Newspaper
   const newsData=filterByRange(data.newspaper||[],'Date',range);
