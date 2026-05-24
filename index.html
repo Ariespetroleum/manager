@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>管理后台 — Aries Petroleum</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">加载中…</div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">详情</div>
+      <div class="modal-close" onclick="closeModal()">✕</div>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">⛽</div>
+    <div class="login-brand">Aries Petroleum</div>
+    <div class="login-title">管理后台</div>
+    <div class="login-sub">请输入4位数PIN码登录管理后台</div>
+    <div class="pin-wrap" id="pinDots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="numpad">
+      <button class="num-btn" onclick="pinPress('1')">1</button>
+      <button class="num-btn" onclick="pinPress('2')">2</button>
+      <button class="num-btn" onclick="pinPress('3')">3</button>
+      <button class="num-btn" onclick="pinPress('4')">4</button>
+      <button class="num-btn" onclick="pinPress('5')">5</button>
+      <button class="num-btn" onclick="pinPress('6')">6</button>
+      <button class="num-btn" onclick="pinPress('7')">7</button>
+      <button class="num-btn" onclick="pinPress('8')">8</button>
+      <button class="num-btn" onclick="pinPress('9')">9</button>
+      <button class="num-btn del" onclick="pinDel()">⌫</button>
+      <button class="num-btn" onclick="pinPress('0')">0</button>
+      <button class="num-btn enter" onclick="pinSubmit()">ENTER</button>
+    </div>
+    <div class="login-error" id="loginError">PIN码错误，请重试。</div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="appShell">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="hamburger" id="hamburgerBtn" onclick="openDrawer()">☰</div>
+      <div class="topbar-logo">⛽</div>
+      <div class="topbar-brand">Aries Petroleum</div>
+      <div class="topbar-divider"></div>
+      <div class="topbar-title" id="topbarTitle">主页</div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-time" id="topbarTime"></div>
+      <button class="logout-btn" onclick="logout()">退出登录</button>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <div class="status-dot-live"></div>
+    <span id="statusBarText">已连接 · 刚刚更新</span>
+  </div>
+
+  <div class="app-body">
+    <div class="sidebar">
+      <div class="nav-section-label">总览</div>
+      <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
+        <span class="nav-icon">📊</span><span class="nav-label">主页</span>
+      </div>
+      <div class="nav-section-label">功能模块</div>
+      <div class="nav-item" onclick="showPage('temperature')" id="nav-temperature">
+        <span class="nav-icon">🌡️</span><span class="nav-label">温度记录</span>
+      </div>
+      <div class="nav-item" onclick="showPage('maintenance')" id="nav-maintenance">
+        <span class="nav-icon">🛠️</span><span class="nav-label">维修记录</span>
+        <span class="nav-badge" id="maintenanceBadge" style="display:none">0</span>
+      </div>
+      <div class="nav-item" onclick="showPage('fuel')" id="nav-fuel">
+        <span class="nav-icon">⛽</span><span class="nav-label">油量管理</span>
+      </div>
+      <div class="nav-item" onclick="showPage('cash')" id="nav-cash">
+        <span class="nav-icon">💰</span><span class="nav-label">收银对账</span>
+      </div>
+      <div class="nav-item" onclick="showPage('cigarette')" id="nav-cigarette">
+        <span class="nav-icon">🚬</span><span class="nav-label">香烟库存</span>
+      </div>
+      <div class="nav-item" onclick="showPage('incidents')" id="nav-incidents">
+        <span class="nav-icon">🚨</span><span class="nav-label">事故总览</span>
+      </div>
+      <div class="nav-item" onclick="showPage('complaints')" id="nav-complaints">
+        <span class="nav-icon">📋</span><span class="nav-label">投诉记录</span>
+        <span class="nav-badge" id="complaintBadge" style="display:none">!</span>
+      </div>
+      <div class="nav-item" onclick="showPage('newspaper')" id="nav-newspaper">
+        <span class="nav-icon">📰</span><span class="nav-label">报纸退货</span>
+      </div>
+      <div class="nav-item" onclick="showPage('roster')" id="nav-roster">
+        <span class="nav-icon">📅</span><span class="nav-label">排班表</span>
+      </div>
+    </div>
+
+    <div class="main">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between">
+          <div>
+            <div class="page-eyebrow">总览</div>
+            <div class="page-title">主页</div>
+            <div class="page-sub" id="dashSub">所有站点 · 今天</div>
+          </div>
+          <button class="refresh-btn" style="margin-top:4px;flex-shrink:0" onclick="loadDashboard()">↻ 刷新</button>
+        </div>
+        <div class="filters-bar">
+          <div class="filter-group" id="dashRangeFilter">
+            <button class="filter-btn active" onclick="setDashRange('today',this)">今天</button>
+            <button class="filter-btn" onclick="setDashRange('yesterday',this)">昨天</button>
+            <button class="filter-btn" onclick="setDashRange('week',this)">本周</button>
+            <button class="filter-btn" onclick="setDashRange('lastweek',this)">上周</button>
+            <button class="filter-btn" onclick="setDashRange('month',this)">本月</button>
+            <button class="filter-btn" onclick="setDashRange('lastmonth',this)">上月</button>
+          </div>
+          <select class="filter-select" id="dashStationFilter" onchange="loadDashboard()">
+            <option value="">所有站点</option>
+            <option>Sinopec Frankston</option><option>Sinopec Thomastown</option>
+            <option>Sinopec Shepparton</option><option>Sinopec Ballarat</option>
+            <option>BP Clayton South</option><option>BP Flemington</option><option>Liberty Golden Square</option>
+          </select>
+          <button class="refresh-btn" onclick="loadDashboard()">↻ 刷新</button>
+        </div>
+        <div class="stats-grid" style="grid-template-columns:1fr 1fr" id="dashStats">
+          <div class="stat-card stat-gold clickable" onclick="showPage('fuel')"><div class="stat-card-stripe" style="background:var(--gold)"></div><span class="stat-card-icon">⛽</span><div class="stat-card-value" id="ds-fuel-dips">—</div><div class="stat-card-label">燃油统计</div><div class="stat-card-sub" id="ds-fuel-sub">油量记录次数</div></div>
+          <div class="stat-card stat-blue clickable" onclick="showPage('cash')"><div class="stat-card-stripe" style="background:var(--accent2)"></div><span class="stat-card-icon">💰</span><div class="stat-card-value" id="ds-cash-count">—</div><div class="stat-card-label">销售统计</div><div class="stat-card-sub" id="ds-cash-amt">收银对账次数</div></div>
+          <div class="stat-card stat-purple clickable" onclick="showPage('cigarette')"><div class="stat-card-stripe" style="background:var(--purple)"></div><span class="stat-card-icon">🚬</span><div class="stat-card-value" id="ds-cig">—</div><div class="stat-card-label">香烟库存</div><div class="stat-card-sub" id="ds-cig-sub">最新盘点记录</div></div>
+          <div class="stat-card stat-blue clickable" onclick="showPage('temperature')"><div class="stat-card-stripe" style="background:var(--accent2)"></div><span class="stat-card-icon">🌡️</span><div class="stat-card-value" id="ds-temp">—</div><div class="stat-card-label">温度记录</div><div class="stat-card-sub">本期提交次数</div></div>
+          <div class="stat-card stat-orange clickable" onclick="showPage('maintenance')"><div class="stat-card-stripe" style="background:var(--warn)"></div><span class="stat-card-icon">🛠️</span><div class="stat-card-value" id="ds-maint-open">—</div><div class="stat-card-label">维修记录</div><div class="stat-card-sub" id="ds-maint-sub">未完成工单</div></div>
+          <div class="stat-card stat-red clickable" onclick="showPage('incidents')"><div class="stat-card-stripe" style="background:var(--danger)"></div><span class="stat-card-icon">🚨</span><div class="stat-card-value" id="ds-incidents-total">—</div><div class="stat-card-label">事故总览</div><div class="stat-card-sub" id="ds-incidents-amt"></div></div>
+          <div class="stat-card stat-pink clickable" onclick="showPage('complaints')"><div class="stat-card-stripe" style="background:var(--pink)"></div><span class="stat-card-icon">📋</span><div class="stat-card-value" id="ds-complaints">—</div><div class="stat-card-label">投诉记录</div><div class="stat-card-sub" id="ds-complaints-sub">客诉 + 员工发现</div></div>
+          <div class="stat-card stat-green clickable" onclick="showPage('newspaper')"><div class="stat-card-stripe" style="background:var(--accent)"></div><span class="stat-card-icon">📰</span><div class="stat-card-value" id="ds-newspaper">—</div><div class="stat-card-label">报纸退货</div><div class="stat-card-sub" id="ds-newspaper-sub">本期退货次数</div></div>
+          <div class="stat-card stat-purple clickable" onclick="showPage('roster')"><div class="stat-card-stripe" style="background:var(--purple)"></div><span class="stat-card-icon">📅</span><div class="stat-card-value" id="ds-roster">—</div><div class="stat-card-label">排班表</div><div class="stat-card-sub" id="ds-roster-sub">今日班次</div></div>
+        </div>
+        <div class="alert-grid" id="dashAlerts"></div>
+        <div class="section">
+          <div class="section-head"><div class="section-head-left"><span>🚨</span><span class="section-head-title">最近事故</span></div><span class="section-count" id="recentIncidentCount">—</span></div>
+          <div class="table-wrap"><table><thead><tr><th>日期</th><th>站点</th><th>类型</th><th>金额</th><th>参考编号</th><th>员工</th></tr></thead><tbody id="recentIncidentsBody"></tbody></table></div>
+        </div>
+        <div class="section">
+          <div class="section-head"><div class="section-head-left"><span>🛠️</span><span class="section-head-title">未完成维修</span></div><span class="section-count" id="openMaintCount">—</span></div>
+          <div class="table-wrap"><table><thead><tr><th>站点</th><th>公司</th><th>设备</th><th>到达时间</th><th>参考编号</th><th>状态</th></tr></thead><tbody id="openMaintBody"></tbody></table></div>
+        </div>
+        <div class="section">
+          <div class="section-head"><div class="section-head-left"><span>📋</span><span class="section-head-title">最近投诉 / 问题</span></div><span class="section-count" id="dashRecentCmpCount">—</span></div>
+          <div class="table-wrap"><table><thead><tr><th>日期</th><th>站点</th><th>区域</th><th>来源</th><th>严重程度</th><th>描述</th><th>员工</th></tr></thead><tbody id="dashRecentCmpBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- TEMPERATURE -->
+      <div class="page" id="page-temperature">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <button class="back-btn" style="margin-bottom:0" onclick="showPage('dashboard')">← 返回主页</button>
+          <button class="refresh-btn" onclick="loadModule('temperature')">↻ 刷新</button>
+        </div>
+        <div class="page-header"><div class="page-eyebrow">模块</div><div class="page-title">温度记录</div><div class="page-sub">所有站点 · 温度记录与预警</div></div>
+        <div class="filters-bar">
+          <div class="filter-group" id="tempRangeFilter">
+            <button class="filter-btn" onclick="setModuleRange('temperature','today',this)">今天</button>
+            <button class="filter-btn" onclick="setModuleRange('temperature','yesterday',this)">昨天</button>
+            <button class="filter-btn" onclick="setModuleRange('temperature','week',this)">本周</button>
+            <button class="filter-btn" onclick="setModuleRange('temperature','lastweek',this)">上周</button>
+            <button class="filter-btn active" onclick="setModuleRange('temperature','month',this)">本月</button>
+            <button class="filter-btn" onclick="setModuleRange('temperature','lastmonth',this)">上月</button>
+          </div>
+          <select class="filter-select" id="tempStationFilter" onchange="loadModule('temperature')">
+            <option value="">所有站点</option>
+            <option>Sinopec Frankston</option><option>Sinopec Thomastown</option><option>Sinopec Shepparton</option><option>Sinopec Ballarat</option><option>BP Clayton South</option><option>BP Flemington</option><option>Liberty Golden Square</option>
+          </select>
+          <button class="refresh-btn" onclick="loadModule('temperature')">↻ 刷新</button>
+        </div>
+        <div class="stats-grid" id="tempStats"></div>
+        <div class="section">
+          <div class="section-head"><div class="section-head-left"><span>🌡️</span><span class="section-head-title">温度记录</span></div><span class="section-count" id="tempCount">—</span></div>
+          <div class="table-toolbar"><input class="search-input" id="tempSearch" placeholder="搜索…" oninput="filterTable('temperature')"><div class="pagination" id="tempPagination"></div></div>
+          <div class="table-wrap"><table><thead><tr><th>日期</th><th>站点</th><th>班次</th><th>员工</th><th>热派</th><th>三明治</th><th>甜甜圈</th><th>乳制品</th><th>冷藏室</th><th>冰淇淋</th><th>冷冻柜</th><th>状态</th></tr></thead><tbody id="tempBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- MAINTENANCE -->
+      <div class="page" id="page-maintenance">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <button class="back-btn" style="margin-bottom:0" onclick="showPage('dashboard')">← 返回主页</button>
+          <button class="refresh-btn" onclick="loadModule('maintenance')">↻ 刷新</button>
+        </div>
+        <div class="page-header"><div class="page-eyebrow">模块</div><div class="page-title">维修记录</div><div class="page-sub">所有站点 · 服务与维修日志</div></div>
+        <div class="filters-bar">
+          <div class="filter-group" id="maintRangeFilter">
+            <button class="filter-btn" onclick="setModuleRange('maintenance','today',this)">今天</button>
+            <button class="filter-btn" onclick="setModuleRange('maintenance','yesterday',this)">昨天</button>
+            <button class="filter-btn" onclick="setModuleRange('maintenance','week',this)">本周</button>
+            <button class="filter-btn" onclick="setModuleRange('maintenance','lastweek',this)">上周</button>
+            <button class="filter-btn active" onclick="setModuleRange('maintenance','month',this)">本月</button>
+            <button class="filter-btn" onclick="setModuleRange('maintenance','lastmonth',this)">上月</button>
+          </div>
+          <select class="filter-select" id="maintStationFilter" onchange="loadModule('maintenance')">
+            <option value="">所有站点</option>
+            <option>Sinopec Frankston</option><option>Sinopec Thomastown</option><option>Sinopec Shepparton</option><option>Sinopec Ballarat</option><option>BP Clayton South</option><option>BP Flemington</option><option>Liberty Golden Square</option>
+          </select>
+          <select class="filter-select" id="maintStatusFilter" onchange="filterTable('maintenance')">
+            <option value="">全部状态</option><option value="IN_PROGRESS">进行中</option><option value="COMPLETED">已完成</option>
+          </select>
+          <button class="refresh-btn" onclick="loadModule('maintenance')">↻ 刷新</button>
+        </div>
+        <div class="stats-grid" id="maintStats"></div>
+        <div class="section">
+          <div class="section-head"><div class="section-head-left"><span>🛠️</span><span class="section-head-title">维修记录</span></div><span class="section-count" id="maintCount">—</span></div>
+          <div class="table-toolbar"><input class="search-input" id="maintSearch" placeholder="搜索…" oninput="filterTable('maintenance')"><div class="pagination" id="maintPagination"></div></div>
+          <div class="table-wrap"><table><thead><tr><th>日期</th><th>站点</th><th>公司</th><th>设备</th><th>问题描述</th><th>到达</th><th>离开</th><th>已修好?</th><th>需跟进?</th><th>状态</th><th>参考编号</th></tr></thead><tbody id="maintBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- FUEL -->
+      <div class="page" id="page-fuel">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <button class="back-btn" style="margin-bottom:0" onclick="showPage('dashboard')">← 返回主页</button>
+          <button class="refresh-btn" onclick="loadModule('fuel')">↻ 刷新</button>
+        </div>
+        <div class="page-header"><div class="page-eyebrow">模块</div><div class="page-title">油量管理</div><div class="page-sub">每日油量读数、配送与油价</div></div>
+        <div class="filters-bar">
+          <div class="filter-group" id="fuelRangeFilter">
+            <button class="filter-btn" onclick="setModuleRange('fuel','today',this)">今天</button>
+            <button class="filter-btn" onclick="setModuleRange('fuel','yesterday',this)">昨天</button>
+            <button class="filter-btn" onclick="setModuleRange('fuel','week',this)">本周</button>
+            <button class="filter-btn" onclick="setModuleRange('fuel','lastweek',this)">上周</button>
+            <button class="filter-btn active" onclick="setModuleRange('fuel','month',this)">本月</button>
+            <button class="filter-btn" onclick="setModuleRange('fuel','lastmonth',this)">上月</button>
+          </div>
+          <select class="filter-select" id="fuelStationFilter" onchange="loadModule('fuel')">
+            <option value="">所有站点</option>
+            <option>Sinopec Frankston</option><option>Sinopec Thomastown</option><option>Sinopec Shepparton</option><option>Sinopec Ballarat</option><option>BP Clayton South</option><option>BP Flemington</option><option>Liberty Golden Square</option>
+          </select>
+          <div class="filter-group" id="fuelTabFilter">
+            <button class="filter-btn active" onclick="setFuelTab('dips',this)">Dips</button>
+            <button class="filter-btn" onclick="setFuelTab('cost',this)">油价记录</button>
+          </div>
+          <button class="refresh-btn" onclick="loadModule('fuel')">↻ 刷新</button>
+        </div>
+        <div class="stats-grid" id="fuelStats"></div>
+        <div class="section" id="fuelDipsSection">
+          <div class="section-head"><div class="section-head-left"><span>⛽</span><span class="section-head-title">油量读数</span></div><span class="section-count" id="fuelDipsCount">—</span></div>
+          <div class="table-toolbar"><input class="search-input" id="fuelSearch" placeholder="搜索…" oninput="filterTable('fuel')"><div class="pagination" id="fuelPagination"></div></div>
+          <div class="table-wrap"><table><thead><tr><th>日期</th><th>站点</th><th>员工</th><th>91</th><th>95</th><th>98</th><th>E10</th><th>柴油</th><th>柴油1</th><th>柴油2</th><th>警告</th></tr></thead><tbody id="fuelDipsBody"></tbody></table></div>
+        </div>
+        <div class="section" id="fuelDeliverySection">
+          <div class="section-head"><div class="section-head-left"><span>🚚</span><span class="section-head-title">油品配送</span></div><span class="section-count" id="fuelDeliveryCount">—</span></div>
+          <div class="table-wrap"><table><thead><tr><th>日期</th><th>站点</th><th>员工</th><th>供应商</th><th>送货单号</th><th>91</th><th>95</th><th>98</th><th>E10</th><th>柴油</th><th>柴油1</th><th>柴油2</th></tr></thead><tbody id="fuelDeliveryBody"></tbody></table></div>
+        </div>
+        <div class="section" id="fuelCostSection" style="display:none">
+          <div class="section-head"><div class="section-head-left"><span>💲</span><span class="section-head-title">油价记录</span></div><span class="section-count" id="fuelCostCount">—</span></div>
+          <div class="table-wrap"><table><thead><tr><th>日期</th><th>来源</th><th>91</th><th>95</th><th>98</th><th>E10</th><th>柴油</th><th>备注</th></tr></thead><tbody id="fuelCostBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- INCIDENTS -->
+      <div class="page" id="page-incidents">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <button class="back-btn" style="margin-bottom:0" onclick="showPage('dashboard')">← 返回主页</button>
+          <button class="refresh-btn" onclick="loadModule('incidents')">↻ 刷新</button>
+        </div>
+        <div class="page-header"><div class="page-eyebrow">模块</div><div class="page-title">事故总计</div><div class="page-sub">油站逃跑 + 未付油费</div></div>
+        <div class="filters-bar">
+          <div class="filter-group" id="incRangeFilter">
+            <button class="filter-btn" onclick="setModuleRange('incidents','today',this)">今天</button>
+            <button class="filter-btn" onclick="setModuleRange('incidents','yesterday',this)">昨天</button>
+            <button class="filter-btn" onclick="setModuleRange('incidents','week',this)">本周</button>
+            <button class="filter-btn" onclick="setModuleRange('incidents','lastweek',this)">上周</button>
+            <button class="filter-btn active" onclick="setModuleRange('incidents','month',this)">本月</button>
+            <button class="filter-btn" onclick="setModuleRange('incidents','lastmonth',this)">上月</button>
+          </div>
+          <select class="filter-select" id="incStationFilter" onchange="loadModule('incidents')">
+            <option value="">所有站点</option>
+            <option>Sinopec Frankston</option><option>Sinopec Thomastown</option><option>Sinopec Shepparton</option><option>Sinopec Ballarat</option><option>BP Clayton South</option><option>BP Flemington</option><option>Liberty Golden Square</option>
+          </select>
+          <button class="refresh-btn" onclick="loadModule('incidents')">↻ 刷新</button>
+        </div>
+        <div class="stats-grid" id="incStats"></div>
+        <div class="section">
+          <div class="section-head"><div class="section-head-left"><span>🚗</span><span class="section-head-title">油站逃跑 Drive Off</span></div><span class="section-count" id="driveoffCount">—</span></div>
+          <div class="table-toolbar"><input class="search-input" id="incSearch" placeholder="搜索车牌、编号、员工…" oninput="filterTable('incidents')"><div class="pagination" id="incPagination"></div></div>
+          <div class="table-wrap"><table><thead><tr><th>日期</th><th>时间</th><th>站点</th><th>金额</th><th>车牌</th><th>燃油类型</th><th>员工</th><th>报警?</th><th>详情</th></tr></thead><tbody id="incBody"></tbody></table></div>
+        </div>
+        <div class="section" style="margin-top:16px">
+          <div class="section-head"><div class="section-head-left"><span>⛽</span><span class="section-head-title">未付油费 Unpaid Fuel</span></div><span class="section-count" id="unpaidCount">—</span></div>
+          <div class="table-wrap"><table><thead><tr><th>日期</th><th>时间</th><th>站点</th><th>金额</th><th>车牌</th><th>燃油类型</th><th>员工</th><th>参考编号</th><th>详情</th></tr></thead><tbody id="unpaidBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- COMPLAINTS -->
+      <div class="page" id="page-complaints">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <button class="back-btn" style="margin-bottom:0" onclick="showPage('dashboard')">← 返回主页</button>
+          <button class="refresh-btn" onclick="loadComplaints(true)">↻ 刷新</button>
+        </div>
+        <div class="page-header"><div class="page-eyebrow">模块</div><div class="page-title">投诉 &amp; 问题记录</div><div class="page-sub">客人投诉 + 员工巡查发现 — Pump / Car Wash / Store</div></div>
+        <div class="filters-bar">
+          <div class="filter-group" id="cmpRangeFilter">
+            <button class="filter-btn" onclick="setModuleRange('complaints','today',this)">今天</button>
+            <button class="filter-btn" onclick="setModuleRange('complaints','yesterday',this)">昨天</button>
+            <button class="filter-btn" onclick="setModuleRange('complaints','week',this)">本周</button>
+            <button class="filter-btn" onclick="setModuleRange('complaints','lastweek',this)">上周</button>
+            <button class="filter-btn active" onclick="setModuleRange('complaints','month',this)">本月</button>
+            <button class="filter-btn" onclick="setModuleRange('complaints','lastmonth',this)">上月</button>
+          </div>
+          <select class="filter-select" id="cmpStationFilter" onchange="renderComplaints()">
+            <option value="">所有站点</option>
+            <option>Sinopec Frankston</option><option>Sinopec Thomastown</option><option>Sinopec Shepparton</option><option>Sinopec Ballarat</option><option>BP Clayton South</option><option>BP Flemington</option><option>Liberty Golden Square</option>
+          </select>
+          <div class="filter-group" id="cmpAreaFilter">
+            <button class="filter-btn active" onclick="setCmpArea('ALL',this)">全部</button>
+            <button class="filter-btn" onclick="setCmpArea('Pump',this)">⛽ Pump</button>
+            <button class="filter-btn" onclick="setCmpArea('Car Wash',this)">🚗 Car Wash</button>
+            <button class="filter-btn" onclick="setCmpArea('Store',this)">🏪 Store</button>
+          </div>
+          <select class="filter-select" id="cmpSevFilter" onchange="renderComplaints()">
+            <option value="">全部严重程度</option>
+            <option value="High">🔴 严重 High</option>
+            <option value="Medium">🟡 中等 Medium</option>
+            <option value="Low">🟢 轻微 Low</option>
+          </select>
+          <select class="filter-select" id="cmpSourceFilter" onchange="renderComplaints()">
+            <option value="">全部来源</option>
+            <option value="customer">🙋 客人投诉</option>
+            <option value="staff">🔍 员工发现</option>
+          </select>
+          <button class="refresh-btn" onclick="loadComplaints(true)">↻ 刷新</button>
+        </div>
+        <div class="stats-grid" id="cmpStats"></div>
+        <div class="section">
+          <div class="section-head"><div class="section-head-left"><span>📋</span><span class="section-head-title">投诉记录</span></div><span class="section-count" id="cmpCount">—</span></div>
+          <div class="table-toolbar"><input class="search-input" id="cmpSearch" placeholder="搜索描述、员工、参考编号…" oninput="renderComplaints()"><div class="pagination" id="cmpPagination"></div></div>
+          <div class="table-wrap"><table><thead><tr><th>日期</th><th>时间</th><th>站点</th><th>区域</th><th>来源</th><th>严重</th><th>描述</th><th>客人联系</th><th>处理方式</th><th>员工</th><th>参考编号</th><th>详情</th></tr></thead><tbody id="cmpBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ROSTER -->
+      <div class="page" id="page-roster">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <button class="back-btn" style="margin-bottom:0" onclick="showPage('dashboard')">← 返回主页</button>
+          <button class="refresh-btn" onclick="loadModule('roster')">↻ 刷新</button>
+        </div>
+        <div class="page-header"><div class="page-eyebrow">模块</div><div class="page-title">排班表</div><div class="page-sub">所有站点员工排班</div></div>
+        <div class="filters-bar">
+          <div class="filter-group" id="rosterRangeFilter">
+            <button class="filter-btn" onclick="setModuleRange('roster','today',this)">今天</button>
+            <button class="filter-btn" onclick="setModuleRange('roster','yesterday',this)">昨天</button>
+            <button class="filter-btn active" onclick="setModuleRange('roster','week',this)">本周</button>
+            <button class="filter-btn" onclick="setModuleRange('roster','lastweek',this)">上周</button>
+            <button class="filter-btn" onclick="setModuleRange('roster','month',this)">本月</button>
+            <button class="filter-btn" onclick="setModuleRange('roster','lastmonth',this)">上月</button>
+          </div>
+          <select class="filter-select" id="rosterStationFilter" onchange="loadModule('roster')">
+            <option value="">所有站点</option>
+            <option>Sinopec Frankston</option><option>Sinopec Thomastown</option><option>Sinopec Shepparton</option><option>Sinopec Ballarat</option><option>BP Clayton South</option><option>BP Flemington</option><option>Liberty Golden Square</option>
+          </select>
+          <button class="refresh-btn" onclick="loadModule('roster')">↻ 刷新</button>
+        </div>
+        <div class="stats-grid" id="rosterStats"></div>
+        <div class="section">
+          <div class="section-head"><div class="section-head-left"><span>📅</span><span class="section-head-title">排班表 Records</span></div><span class="section-count" id="rosterCount">—</span></div>
+          <div class="table-toolbar"><input class="search-input" id="rosterSearch" placeholder="搜索员工、站点…" oninput="filterTable('roster')"><div class="pagination" id="rosterPagination"></div></div>
+          <div class="table-wrap"><table><thead><tr><th>日期</th><th>站点</th><th>员工</th><th>班次</th><th>开始</th><th>结束</th><th>职位</th><th>备注</th></tr></thead><tbody id="rosterBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- NEWSPAPER -->
+      <div class="page" id="page-newspaper">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <button class="back-btn" style="margin-bottom:0" onclick="showPage('dashboard')">← 返回主页</button>
+          <button class="refresh-btn" onclick="loadModule('newspaper')">↻ 刷新</button>
+        </div>
+        <div class="page-header"><div class="page-eyebrow">模块</div><div class="page-title">报纸退货</div><div class="page-sub">各站点每日报纸退货记录</div></div>
+        <div class="filters-bar">
+          <div class="filter-group" id="newspaperRangeFilter">
+            <button class="filter-btn" onclick="setModuleRange('newspaper','today',this)">今天</button>
+            <button class="filter-btn" onclick="setModuleRange('newspaper','yesterday',this)">昨天</button>
+            <button class="filter-btn active" onclick="setModuleRange('newspaper','week',this)">本周</button>
+            <button class="filter-btn" onclick="setModuleRange('newspaper','lastweek',this)">上周</button>
+            <button class="filter-btn" onclick="setModuleRange('newspaper','month',this)">本月</button>
+          </div>
+          <select class="filter-select" id="newspaperStationFilter" onchange="loadModule('newspaper')">
+            <option value="">所有站点</option>
+            <option>Sinopec Frankston</option><option>Sinopec Thomastown</option><option>Sinopec Shepparton</option><option>Sinopec Ballarat</option><option>BP Clayton South</option><option>BP Flemington</option><option>Liberty Golden Square</option>
+          </select>
+          <button class="refresh-btn" onclick="loadModule('newspaper')">↻ 刷新</button>
+        </div>
+        <div class="stats-grid" id="newspaperStats"></div>
+        <div class="section">
+          <div class="section-head"><div class="section-head-left"><span>📰</span><span class="section-head-title">退货记录</span></div><span class="section-count" id="newspaperCount">—</span></div>
+          <div class="table-toolbar"><input class="search-input" id="newspaperSearch" placeholder="搜索报纸名称、站点…" oninput="filterTable('newspaper')"><div class="pagination" id="newspaperPagination"></div></div>
+          <div class="table-wrap"><table><thead><tr><th>日期</th><th>站点</th><th>员工</th><th>报纸</th><th>退货数</th><th>备注</th></tr></thead><tbody id="newspaperBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- CASH -->
+      <div class="page" id="page-cash">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <button class="back-btn" style="margin-bottom:0" onclick="showPage('dashboard')">← 返回主页</button>
+          <button class="refresh-btn" onclick="loadModule('cash')">↻ 刷新</button>
+        </div>
+        <div class="page-header"><div class="page-eyebrow">模块</div><div class="page-title">收银对账</div><div class="page-sub">各站点每班收银记录</div></div>
+        <div class="filters-bar">
+          <div class="filter-group" id="cashRangeFilter">
+            <button class="filter-btn" onclick="setModuleRange('cash','today',this)">今天</button>
+            <button class="filter-btn" onclick="setModuleRange('cash','yesterday',this)">昨天</button>
+            <button class="filter-btn" onclick="setModuleRange('cash','week',this)">本周</button>
+            <button class="filter-btn" onclick="setModuleRange('cash','lastweek',this)">上周</button>
+            <button class="filter-btn active" onclick="setModuleRange('cash','month',this)">本月</button>
+            <button class="filter-btn" onclick="setModuleRange('cash','lastmonth',this)">上月</button>
+          </div>
+          <select class="filter-select" id="cashStationFilter" onchange="loadModule('cash')">
+            <option value="">所有站点</option>
+            <option>Sinopec Frankston</option><option>Sinopec Thomastown</option><option>Sinopec Shepparton</option><option>Sinopec Ballarat</option><option>BP Clayton South</option><option>BP Flemington</option><option>Liberty Golden Square</option>
+          </select>
+          <button class="refresh-btn" onclick="loadModule('cash')">↻ 刷新</button>
+        </div>
+        <div class="stats-grid" id="cashStats"></div>
+        <div class="section">
+          <div class="section-head"><div class="section-head-left"><span>💰</span><span class="section-head-title">收银记录</span></div><span class="section-count" id="cashCount">—</span></div>
+          <div class="table-toolbar"><input class="search-input" id="cashSearch" placeholder="搜索站点、员工…" oninput="filterTable('cash')"><div class="pagination" id="cashPagination"></div></div>
+          <div class="table-wrap"><table><thead><tr><th>日期</th><th>站点</th><th>班次</th><th>员工</th><th>燃油销售</th><th>商店销售</th><th>总销售</th><th>预计现金</th><th>实际现金</th><th>差额</th><th>原因</th></tr></thead><tbody id="cashBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- CIGARETTE -->
+      <div class="page" id="page-cigarette">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <button class="back-btn" style="margin-bottom:0" onclick="showPage('dashboard')">← 返回主页</button>
+          <button class="refresh-btn" onclick="loadModule('cigarette')">↻ 刷新</button>
+        </div>
+        <div class="page-header"><div class="page-eyebrow">模块</div><div class="page-title">香烟库存</div><div class="page-sub">各站最新盘点库存 + 历史提交记录</div></div>
+        <div class="filters-bar">
+          <select class="filter-select" id="cigStationFilter" onchange="renderCigarette()">
+            <option value="">所有站点</option>
+            <option>Sinopec Frankston</option><option>Sinopec Thomastown</option><option>Sinopec Shepparton</option><option>Sinopec Ballarat</option><option>BP Clayton South</option><option>BP Flemington</option><option>Liberty Golden Square</option>
+          </select>
+          <button class="refresh-btn" onclick="loadModule('cigarette')">↻ 刷新</button>
+        </div>
+        <div class="section" id="cigSummarySection">
+          <div class="section-head"><div class="section-head-left"><span>📊</span><span class="section-head-title">各款库存汇总（最新盘点）</span></div></div>
+          <div class="table-wrap"><table><thead><tr><th>品牌/款式</th><th>Frankston</th><th>Thomastown</th><th>Shepparton</th><th>Ballarat</th><th>BP Clayton</th><th>BP Fleming</th><th>Liberty</th><th>合计</th></tr></thead><tbody id="cigSummaryBody"></tbody></table></div>
+        </div>
+        <div class="section" style="margin-top:16px">
+          <div class="section-head"><div class="section-head-left"><span>🚬</span><span class="section-head-title">历史盘点记录</span></div><span class="section-count" id="cigCount">—</span></div>
+          <div class="table-toolbar"><input class="search-input" id="cigSearch" placeholder="搜索品牌、站点…" oninput="filterTable('cigarette')"><div class="pagination" id="cigPagination"></div></div>
+          <div class="table-wrap"><table><thead><tr><th>日期</th><th>站点</th><th>班次</th><th>员工</th><th>品牌</th><th>数量</th></tr></thead><tbody id="cigBody"></tbody></table></div>
+        </div>
+      </div>
+
+    </div><!-- /main -->
+  </div><!-- /app-body -->
+
+  <!-- DRAWER -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <span class="drawer-brand">Aries Petroleum</span>
+      <span class="drawer-close" onclick="closeDrawer()">✕</span>
+    </div>
+    <div class="drawer-nav">
+      <div class="drawer-item active" onclick="showPage('dashboard');closeDrawer()" id="dnav-dashboard"><span class="drawer-item-icon">📊</span><span class="drawer-item-label">主页</span></div>
+      <div class="drawer-item" onclick="showPage('temperature');closeDrawer()" id="dnav-temperature"><span class="drawer-item-icon">🌡️</span><span class="drawer-item-label">温度记录</span></div>
+      <div class="drawer-item" onclick="showPage('maintenance');closeDrawer()" id="dnav-maintenance"><span class="drawer-item-icon">🛠️</span><span class="drawer-item-label">维修记录</span><span class="drawer-badge" id="drawerMaintBadge" style="display:none">0</span></div>
+      <div class="drawer-item" onclick="showPage('fuel');closeDrawer()" id="dnav-fuel"><span class="drawer-item-icon">⛽</span><span class="drawer-item-label">油量管理</span></div>
+      <div class="drawer-item" onclick="showPage('cash');closeDrawer()" id="dnav-cash"><span class="drawer-item-icon">💰</span><span class="drawer-item-label">收银对账</span></div>
+      <div class="drawer-item" onclick="showPage('cigarette');closeDrawer()" id="dnav-cigarette"><span class="drawer-item-icon">🚬</span><span class="drawer-item-label">香烟库存</span></div>
+      <div class="drawer-item" onclick="showPage('incidents');closeDrawer()" id="dnav-incidents"><span class="drawer-item-icon">🚨</span><span class="drawer-item-label">事故总览</span></div>
+      <div class="drawer-item" onclick="showPage('complaints');closeDrawer()" id="dnav-complaints"><span class="drawer-item-icon">📋</span><span class="drawer-item-label">投诉记录</span><span class="drawer-badge" id="drawerCmpBadge" style="display:none">!</span></div>
+      <div class="drawer-item" onclick="showPage('newspaper');closeDrawer()" id="dnav-newspaper"><span class="drawer-item-icon">📰</span><span class="drawer-item-label">报纸退货</span></div>
+      <div class="drawer-item" onclick="showPage('roster');closeDrawer()" id="dnav-roster"><span class="drawer-item-icon">📅</span><span class="drawer-item-label">排班表</span></div>
+    </div>
+  </div>
+
+</div><!-- /appShell -->
+
+<!-- JS — core must load first, order of the rest doesn't matter -->
+<script src="js/core.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/incidents.js"></script>
+<script src="js/modules.js"></script>
+<script src="js/complaints.js"></script>
+
+</body>
+</html>
