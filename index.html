@@ -85,13 +85,9 @@
       <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
         <span class="nav-icon">📊</span><span class="nav-label">主页</span>
       </div>
-      <div class="nav-section-label">功能模块</div>
+      <div class="nav-section-label">每日运营</div>
       <div class="nav-item" onclick="showPage('temperature')" id="nav-temperature">
         <span class="nav-icon">🌡️</span><span class="nav-label">温度记录</span>
-      </div>
-      <div class="nav-item" onclick="showPage('maintenance')" id="nav-maintenance">
-        <span class="nav-icon">🛠️</span><span class="nav-label">维修记录</span>
-        <span class="nav-badge" id="maintenanceBadge" style="display:none">0</span>
       </div>
       <div class="nav-item" onclick="showPage('fuel')" id="nav-fuel">
         <span class="nav-icon">⛽</span><span class="nav-label">油量管理</span>
@@ -102,6 +98,10 @@
       <div class="nav-item" onclick="showPage('cigarette')" id="nav-cigarette">
         <span class="nav-icon">🚬</span><span class="nav-label">香烟库存</span>
       </div>
+      <div class="nav-item" onclick="showPage('newspaper')" id="nav-newspaper">
+        <span class="nav-icon">📰</span><span class="nav-label">报纸退货</span>
+      </div>
+      <div class="nav-section-label">事故与投诉</div>
       <div class="nav-item" onclick="showPage('incidents')" id="nav-incidents">
         <span class="nav-icon">🚨</span><span class="nav-label">事故总览</span>
       </div>
@@ -109,11 +109,18 @@
         <span class="nav-icon">📋</span><span class="nav-label">投诉记录</span>
         <span class="nav-badge" id="complaintBadge" style="display:none">!</span>
       </div>
-      <div class="nav-item" onclick="showPage('newspaper')" id="nav-newspaper">
-        <span class="nav-icon">📰</span><span class="nav-label">报纸退货</span>
+      <div class="nav-section-label">人员与运营</div>
+      <div class="nav-item" onclick="showPage('maintenance')" id="nav-maintenance">
+        <span class="nav-icon">🛠️</span><span class="nav-label">维修记录</span>
+        <span class="nav-badge" id="maintenanceBadge" style="display:none">0</span>
       </div>
       <div class="nav-item" onclick="showPage('roster')" id="nav-roster">
         <span class="nav-icon">📅</span><span class="nav-label">排班表</span>
+      </div>
+      <div class="nav-section-label">会员奖励</div>
+      <div class="nav-item" onclick="showPage('rewards')" id="nav-rewards">
+        <span class="nav-icon">🎁</span><span class="nav-label">会员奖励</span>
+        <span class="nav-badge" id="rewardsBadge" style="display:none">0</span>
       </div>
     </div>
 
@@ -140,13 +147,15 @@
           </div>
           <select class="filter-select" id="dashStationFilter" onchange="loadDashboard()">
             <option value="">所有站点</option>
-            <option>Sinopec Frankston</option><option>Sinopec Thomastown</option>
-            <option>Sinopec Shepparton</option><option>Sinopec Ballarat</option>
-            <option>BP Clayton South</option><option>BP Flemington</option><option>Liberty Golden Square</option>
+            <option>Frankston</option><option>Thomastown</option>
+            <option>Shepparton</option><option>Ballarat</option>
+            <option>Clayton South</option><option>Flemington</option><option>Bendigo</option>
           </select>
-          <button class="refresh-btn" onclick="loadDashboard()">↻ 刷新</button>
         </div>
-        <div class="stats-grid" style="grid-template-columns:1fr 1fr" id="dashStats">
+        <div class="stats-grid" style="grid-template-columns:1fr 1fr 1fr" id="dashStats">
+          <div class="stat-card stat-red clickable" onclick="showPage('rewards')"><div class="stat-card-stripe" style="background:var(--danger)"></div><span class="stat-card-icon">⏳</span><div class="stat-card-value" id="ds-rewards-pending">—</div><div class="stat-card-label">待确认奖励</div><div class="stat-card-sub">咖啡 + 洗车</div></div>
+          <div class="stat-card stat-blue clickable" onclick="showPage('rewards')"><div class="stat-card-stripe" style="background:var(--accent2)"></div><span class="stat-card-icon">✅</span><div class="stat-card-value" id="ds-rewards-today">—</div><div class="stat-card-label">今日已确认</div><div class="stat-card-sub">咖啡 + 洗车</div></div>
+          <div class="stat-card stat-green clickable" onclick="showPage('rewards')"><div class="stat-card-stripe" style="background:var(--accent)"></div><span class="stat-card-icon">💳</span><div class="stat-card-value" id="ds-rewards-monthly">—</div><div class="stat-card-label">包月会员</div><div class="stat-card-sub">活跃会员总数</div></div>
           <div class="stat-card stat-gold clickable" onclick="showPage('fuel')"><div class="stat-card-stripe" style="background:var(--gold)"></div><span class="stat-card-icon">⛽</span><div class="stat-card-value" id="ds-fuel-dips">—</div><div class="stat-card-label">燃油统计</div><div class="stat-card-sub" id="ds-fuel-sub">油量记录次数</div></div>
           <div class="stat-card stat-blue clickable" onclick="showPage('cash')"><div class="stat-card-stripe" style="background:var(--accent2)"></div><span class="stat-card-icon">💰</span><div class="stat-card-value" id="ds-cash-count">—</div><div class="stat-card-label">销售统计</div><div class="stat-card-sub" id="ds-cash-amt">收银对账次数</div></div>
           <div class="stat-card stat-purple clickable" onclick="showPage('cigarette')"><div class="stat-card-stripe" style="background:var(--purple)"></div><span class="stat-card-icon">🚬</span><div class="stat-card-value" id="ds-cig">—</div><div class="stat-card-label">香烟库存</div><div class="stat-card-sub" id="ds-cig-sub">最新盘点记录</div></div>
@@ -190,9 +199,8 @@
           </div>
           <select class="filter-select" id="tempStationFilter" onchange="loadModule('temperature')">
             <option value="">所有站点</option>
-            <option>Sinopec Frankston</option><option>Sinopec Thomastown</option><option>Sinopec Shepparton</option><option>Sinopec Ballarat</option><option>BP Clayton South</option><option>BP Flemington</option><option>Liberty Golden Square</option>
+            <option>Frankston</option><option>Thomastown</option><option>Shepparton</option><option>Ballarat</option><option>Clayton South</option><option>Flemington</option><option>Bendigo</option>
           </select>
-          <button class="refresh-btn" onclick="loadModule('temperature')">↻ 刷新</button>
         </div>
         <div class="stats-grid" id="tempStats"></div>
         <div class="section">
@@ -220,12 +228,11 @@
           </div>
           <select class="filter-select" id="maintStationFilter" onchange="loadModule('maintenance')">
             <option value="">所有站点</option>
-            <option>Sinopec Frankston</option><option>Sinopec Thomastown</option><option>Sinopec Shepparton</option><option>Sinopec Ballarat</option><option>BP Clayton South</option><option>BP Flemington</option><option>Liberty Golden Square</option>
+            <option>Frankston</option><option>Thomastown</option><option>Shepparton</option><option>Ballarat</option><option>Clayton South</option><option>Flemington</option><option>Bendigo</option>
           </select>
           <select class="filter-select" id="maintStatusFilter" onchange="filterTable('maintenance')">
             <option value="">全部状态</option><option value="IN_PROGRESS">进行中</option><option value="COMPLETED">已完成</option>
           </select>
-          <button class="refresh-btn" onclick="loadModule('maintenance')">↻ 刷新</button>
         </div>
         <div class="stats-grid" id="maintStats"></div>
         <div class="section">
@@ -253,13 +260,12 @@
           </div>
           <select class="filter-select" id="fuelStationFilter" onchange="loadModule('fuel')">
             <option value="">所有站点</option>
-            <option>Sinopec Frankston</option><option>Sinopec Thomastown</option><option>Sinopec Shepparton</option><option>Sinopec Ballarat</option><option>BP Clayton South</option><option>BP Flemington</option><option>Liberty Golden Square</option>
+            <option>Frankston</option><option>Thomastown</option><option>Shepparton</option><option>Ballarat</option><option>Clayton South</option><option>Flemington</option><option>Bendigo</option>
           </select>
           <div class="filter-group" id="fuelTabFilter">
             <button class="filter-btn active" onclick="setFuelTab('dips',this)">Dips</button>
             <button class="filter-btn" onclick="setFuelTab('cost',this)">油价记录</button>
           </div>
-          <button class="refresh-btn" onclick="loadModule('fuel')">↻ 刷新</button>
         </div>
         <div class="stats-grid" id="fuelStats"></div>
         <div class="section" id="fuelDipsSection">
@@ -295,9 +301,8 @@
           </div>
           <select class="filter-select" id="incStationFilter" onchange="loadModule('incidents')">
             <option value="">所有站点</option>
-            <option>Sinopec Frankston</option><option>Sinopec Thomastown</option><option>Sinopec Shepparton</option><option>Sinopec Ballarat</option><option>BP Clayton South</option><option>BP Flemington</option><option>Liberty Golden Square</option>
+            <option>Frankston</option><option>Thomastown</option><option>Shepparton</option><option>Ballarat</option><option>Clayton South</option><option>Flemington</option><option>Bendigo</option>
           </select>
-          <button class="refresh-btn" onclick="loadModule('incidents')">↻ 刷新</button>
         </div>
         <div class="stats-grid" id="incStats"></div>
         <div class="section">
@@ -329,7 +334,7 @@
           </div>
           <select class="filter-select" id="cmpStationFilter" onchange="renderComplaints()">
             <option value="">所有站点</option>
-            <option>Sinopec Frankston</option><option>Sinopec Thomastown</option><option>Sinopec Shepparton</option><option>Sinopec Ballarat</option><option>BP Clayton South</option><option>BP Flemington</option><option>Liberty Golden Square</option>
+            <option>Frankston</option><option>Thomastown</option><option>Shepparton</option><option>Ballarat</option><option>Clayton South</option><option>Flemington</option><option>Bendigo</option>
           </select>
           <div class="filter-group" id="cmpAreaFilter">
             <button class="filter-btn active" onclick="setCmpArea('ALL',this)">全部</button>
@@ -348,7 +353,6 @@
             <option value="customer">🙋 客人投诉</option>
             <option value="staff">🔍 员工发现</option>
           </select>
-          <button class="refresh-btn" onclick="loadComplaints(true)">↻ 刷新</button>
         </div>
         <div class="stats-grid" id="cmpStats"></div>
         <div class="section">
@@ -376,9 +380,8 @@
           </div>
           <select class="filter-select" id="rosterStationFilter" onchange="loadModule('roster')">
             <option value="">所有站点</option>
-            <option>Sinopec Frankston</option><option>Sinopec Thomastown</option><option>Sinopec Shepparton</option><option>Sinopec Ballarat</option><option>BP Clayton South</option><option>BP Flemington</option><option>Liberty Golden Square</option>
+            <option>Frankston</option><option>Thomastown</option><option>Shepparton</option><option>Ballarat</option><option>Clayton South</option><option>Flemington</option><option>Bendigo</option>
           </select>
-          <button class="refresh-btn" onclick="loadModule('roster')">↻ 刷新</button>
         </div>
         <div class="stats-grid" id="rosterStats"></div>
         <div class="section">
@@ -405,9 +408,8 @@
           </div>
           <select class="filter-select" id="newspaperStationFilter" onchange="loadModule('newspaper')">
             <option value="">所有站点</option>
-            <option>Sinopec Frankston</option><option>Sinopec Thomastown</option><option>Sinopec Shepparton</option><option>Sinopec Ballarat</option><option>BP Clayton South</option><option>BP Flemington</option><option>Liberty Golden Square</option>
+            <option>Frankston</option><option>Thomastown</option><option>Shepparton</option><option>Ballarat</option><option>Clayton South</option><option>Flemington</option><option>Bendigo</option>
           </select>
-          <button class="refresh-btn" onclick="loadModule('newspaper')">↻ 刷新</button>
         </div>
         <div class="stats-grid" id="newspaperStats"></div>
         <div class="section">
@@ -435,9 +437,8 @@
           </div>
           <select class="filter-select" id="cashStationFilter" onchange="loadModule('cash')">
             <option value="">所有站点</option>
-            <option>Sinopec Frankston</option><option>Sinopec Thomastown</option><option>Sinopec Shepparton</option><option>Sinopec Ballarat</option><option>BP Clayton South</option><option>BP Flemington</option><option>Liberty Golden Square</option>
+            <option>Frankston</option><option>Thomastown</option><option>Shepparton</option><option>Ballarat</option><option>Clayton South</option><option>Flemington</option><option>Bendigo</option>
           </select>
-          <button class="refresh-btn" onclick="loadModule('cash')">↻ 刷新</button>
         </div>
         <div class="stats-grid" id="cashStats"></div>
         <div class="section">
@@ -457,13 +458,12 @@
         <div class="filters-bar">
           <select class="filter-select" id="cigStationFilter" onchange="renderCigarette()">
             <option value="">所有站点</option>
-            <option>Sinopec Frankston</option><option>Sinopec Thomastown</option><option>Sinopec Shepparton</option><option>Sinopec Ballarat</option><option>BP Clayton South</option><option>BP Flemington</option><option>Liberty Golden Square</option>
+            <option>Frankston</option><option>Thomastown</option><option>Shepparton</option><option>Ballarat</option><option>Clayton South</option><option>Flemington</option><option>Bendigo</option>
           </select>
-          <button class="refresh-btn" onclick="loadModule('cigarette')">↻ 刷新</button>
         </div>
         <div class="section" id="cigSummarySection">
           <div class="section-head"><div class="section-head-left"><span>📊</span><span class="section-head-title">各款库存汇总（最新盘点）</span></div></div>
-          <div class="table-wrap"><table><thead><tr><th>品牌/款式</th><th>Frankston</th><th>Thomastown</th><th>Shepparton</th><th>Ballarat</th><th>BP Clayton</th><th>BP Fleming</th><th>Liberty</th><th>合计</th></tr></thead><tbody id="cigSummaryBody"></tbody></table></div>
+          <div class="table-wrap"><table><thead><tr><th>品牌/款式</th><th>Frankston</th><th>Thomastown</th><th>Shepparton</th><th>Ballarat</th><th>Clayton South</th><th>Flemington</th><th>Bendigo</th><th>合计</th></tr></thead><tbody id="cigSummaryBody"></tbody></table></div>
         </div>
         <div class="section" style="margin-top:16px">
           <div class="section-head"><div class="section-head-left"><span>🚬</span><span class="section-head-title">历史盘点记录</span></div><span class="section-count" id="cigCount">—</span></div>
@@ -471,6 +471,99 @@
           <div class="table-wrap"><table><thead><tr><th>日期</th><th>站点</th><th>班次</th><th>员工</th><th>品牌</th><th>数量</th></tr></thead><tbody id="cigBody"></tbody></table></div>
         </div>
       </div>
+
+      <!-- REWARDS -->
+      <div class="page" id="page-rewards">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <button class="back-btn" style="margin-bottom:0" onclick="showPage('dashboard')">← 返回主页</button>
+          <button class="refresh-btn" onclick="loadRewards(true)">↻ 刷新</button>
+        </div>
+        <div class="page-header">
+          <div class="page-eyebrow">模块</div>
+          <div class="page-title">会员奖励</div>
+          <div class="page-sub">咖啡集点 · 洗三送一 · 包月会员 · 顾客反馈</div>
+        </div>
+
+        <!-- Summary stats -->
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+          <div class="stat-card stat-red"><div class="stat-card-stripe" style="background:var(--danger)"></div><span class="stat-card-icon">⏳</span><div class="stat-card-value" id="rw-stat-pending">—</div><div class="stat-card-label">待确认</div><div class="stat-card-sub">咖啡 + 洗车</div></div>
+          <div class="stat-card stat-blue"><div class="stat-card-stripe" style="background:var(--accent2)"></div><span class="stat-card-icon">☕</span><div class="stat-card-value" id="rw-stat-coffee-today">—</div><div class="stat-card-label">今日咖啡确认</div></div>
+          <div class="stat-card stat-green"><div class="stat-card-stripe" style="background:var(--accent)"></div><span class="stat-card-icon">🚗</span><div class="stat-card-value" id="rw-stat-wash-today">—</div><div class="stat-card-label">今日洗车确认</div></div>
+          <div class="stat-card stat-blue"><div class="stat-card-stripe" style="background:var(--liberty-blue)"></div><span class="stat-card-icon">💳</span><div class="stat-card-value" id="rw-stat-monthly">—</div><div class="stat-card-label">包月会员</div></div>
+          <div class="stat-card stat-green"><div class="stat-card-stripe" style="background:var(--accent)"></div><span class="stat-card-icon">☕</span><div class="stat-card-value" id="rw-stat-coffee-members">—</div><div class="stat-card-label">咖啡会员</div></div>
+          <div class="stat-card stat-orange"><div class="stat-card-stripe" style="background:var(--warn)"></div><span class="stat-card-icon">🚗</span><div class="stat-card-value" id="rw-stat-wash-members">—</div><div class="stat-card-label">洗三送一会员</div></div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="filters-bar" id="rewards-tab-bar" style="margin-top:8px">
+          <div class="filter-group">
+            <button class="filter-btn active" onclick="setRewardsTab('coffee',this)">☕ 咖啡集点</button>
+            <button class="filter-btn" onclick="setRewardsTab('wash',this)">🚗 洗三送一</button>
+            <button class="filter-btn" onclick="setRewardsTab('monthly',this)">💳 包月会员</button>
+            <button class="filter-btn" onclick="setRewardsTab('feedback',this)">💬 顾客反馈</button>
+          </div>
+        </div>
+
+        <!-- Coffee pane -->
+        <div id="rw-pane-coffee">
+          <div class="section">
+            <div class="section-head"><div class="section-head-left"><span>☕</span><span class="section-head-title">咖啡集点会员</span></div><span class="section-count" id="rw-coffee-count">—</span></div>
+            <div class="table-toolbar">
+              <input class="search-input" id="rw-coffee-search" placeholder="搜索姓名、手机…" oninput="renderCoffeeMembers()">
+              <div class="pagination" id="rw-coffee-pagination"></div>
+            </div>
+            <div class="table-wrap"><table><thead><tr><th>姓名</th><th>手机</th><th>已确认次数</th><th>集点进度</th><th>已领免费</th><th>详情</th></tr></thead><tbody id="rw-coffee-body"></tbody></table></div>
+          </div>
+        </div>
+
+        <!-- Wash pane -->
+        <div id="rw-pane-wash" style="display:none">
+          <div class="section">
+            <div class="section-head"><div class="section-head-left"><span>🚗</span><span class="section-head-title">洗三送一会员</span></div><span class="section-count" id="rw-wash-count">—</span></div>
+            <div class="table-toolbar">
+              <input class="search-input" id="rw-wash-search" placeholder="搜索手机…" oninput="renderWashMembers()">
+              <div class="pagination" id="rw-wash-pagination"></div>
+            </div>
+            <div class="table-wrap"><table><thead><tr><th>手机</th><th>已确认次数</th><th>进度</th><th>已领免费</th><th>详情</th></tr></thead><tbody id="rw-wash-body"></tbody></table></div>
+          </div>
+        </div>
+
+        <!-- Monthly pane -->
+        <div id="rw-pane-monthly" style="display:none">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+            <span id="rw-monthly-expiring" style="font-size:12px;color:var(--warn);font-weight:700"></span>
+          </div>
+          <div class="section">
+            <div class="section-head"><div class="section-head-left"><span>💳</span><span class="section-head-title">包月会员</span></div><span class="section-count" id="rw-monthly-count">—</span></div>
+            <div class="table-toolbar">
+              <input class="search-input" id="rw-monthly-search" placeholder="搜索车牌、手机…" oninput="renderMonthlyMembers()">
+              <div class="pagination" id="rw-monthly-pagination"></div>
+            </div>
+            <div class="table-wrap"><table><thead><tr><th>车牌</th><th>手机</th><th>套餐</th><th>开始日期</th><th>到期日期</th><th>已确认次数</th><th>详情</th></tr></thead><tbody id="rw-monthly-body"></tbody></table></div>
+          </div>
+        </div>
+
+        <!-- Feedback pane -->
+        <div id="rw-pane-feedback" style="display:none">
+          <div class="section">
+            <div class="section-head">
+              <div class="section-head-left"><span>💬</span><span class="section-head-title">顾客反馈</span></div>
+              <span class="section-count" id="rw-feedback-count">—</span>
+              <span id="rw-feedback-avg" style="margin-left:12px;font-size:13px;font-weight:700;color:var(--gold)"></span>
+            </div>
+            <div class="table-toolbar">
+              <select class="filter-select" id="rw-feedback-station" onchange="renderRewardsFeedback()" style="max-width:160px">
+                <option value="">所有站点</option>
+                <option>Frankston</option><option>Thomastown</option><option>Shepparton</option><option>Ballarat</option><option>Clayton South</option><option>Flemington</option><option>Bendigo</option>
+              </select>
+              <input class="search-input" id="rw-feedback-search" placeholder="搜索内容、姓名…" oninput="renderRewardsFeedback()">
+              <div class="pagination" id="rw-feedback-pagination"></div>
+            </div>
+            <div class="table-wrap"><table><thead><tr><th>日期</th><th>站点</th><th>评分</th><th>内容</th><th>姓名</th><th>邮箱</th></tr></thead><tbody id="rw-feedback-body"></tbody></table></div>
+          </div>
+        </div>
+
+      </div><!-- /page-rewards -->
 
     </div><!-- /main -->
   </div><!-- /app-body -->
@@ -493,17 +586,49 @@
       <div class="drawer-item" onclick="showPage('complaints');closeDrawer()" id="dnav-complaints"><span class="drawer-item-icon">📋</span><span class="drawer-item-label">投诉记录</span><span class="drawer-badge" id="drawerCmpBadge" style="display:none">!</span></div>
       <div class="drawer-item" onclick="showPage('newspaper');closeDrawer()" id="dnav-newspaper"><span class="drawer-item-icon">📰</span><span class="drawer-item-label">报纸退货</span></div>
       <div class="drawer-item" onclick="showPage('roster');closeDrawer()" id="dnav-roster"><span class="drawer-item-icon">📅</span><span class="drawer-item-label">排班表</span></div>
+      <div class="drawer-item" onclick="showPage('rewards');closeDrawer()" id="dnav-rewards"><span class="drawer-item-icon">🎁</span><span class="drawer-item-label">会员奖励</span><span class="drawer-badge" id="drawerRewardsBadge" style="display:none">0</span></div>
     </div>
   </div>
 
 </div><!-- /appShell -->
 
-<!-- JS — core must load first, order of the rest doesn't matter -->
 <script src="js/core.js"></script>
 <script src="js/dashboard.js"></script>
 <script src="js/incidents.js"></script>
 <script src="js/modules.js"></script>
 <script src="js/complaints.js"></script>
+<script src="js/rewards.js"></script>
+<script>
+// ── Patch showPage to handle rewards ──
+const _origShowPage = showPage;
+showPage = function(id){
+  // Update drawer active state
+  document.querySelectorAll('.drawer-item').forEach(n=>n.classList.remove('active'));
+  const dn = document.getElementById('dnav-'+id);
+  if(dn) dn.classList.add('active');
+
+  if(id === 'rewards'){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    document.getElementById('page-rewards').classList.add('active');
+    document.getElementById('nav-rewards').classList.add('active');
+    document.getElementById('topbarTitle').textContent = '会员奖励';
+    if(!cache.rewards) loadRewards(true); else renderRewards();
+    return;
+  }
+  _origShowPage(id);
+};
+
+// ── Patch loadDashboard to also load rewards stats ──
+const _origLoadDashboard = loadDashboard;
+loadDashboard = async function(){
+  await _origLoadDashboard();
+  loadRewardsDashboardStats();
+};
+
+// ── Patch moduleRanges and tableState to include rewards ──
+moduleRanges.rewards = 'all';
+</script>
 
 </body>
 </html>
