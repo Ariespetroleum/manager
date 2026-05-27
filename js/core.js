@@ -114,11 +114,23 @@ function launchDashboard(){
 }
 
 function launchCash(){
-  window.location.href = 'index.html';
+  const token = btoa(JSON.stringify({
+    username: currentUser.username,
+    displayName: currentUser.displayName,
+    role: currentUser.role,
+    ts: Date.now()
+  }));
+  window.location.href = 'https://cash.ariespetroleum.com.au/?auth=' + encodeURIComponent(token);
 }
 
 function launchPayroll(){
-  window.location.href = 'payroll.html';
+  const token = btoa(JSON.stringify({
+    username: currentUser.username,
+    displayName: currentUser.displayName,
+    role: currentUser.role,
+    ts: Date.now()
+  }));
+  window.location.href = 'https://payroll.ariespetroleum.com.au/?auth=' + encodeURIComponent(token);
 }
 
 function staffApi(action,extra=''){
