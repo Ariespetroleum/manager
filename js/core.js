@@ -5,12 +5,22 @@ const STAFF_URL = 'https://script.google.com/macros/s/AKfycbxs-f95f6JwrxA-U0uVFw
 const FUEL_URL  = 'https://script.google.com/macros/s/AKfycbyGCrBEdvQJ4t38e0ryRqrgB-FVthGhxFgVmRtWwJYaaHQnM953bx5vvPXXcrSrGkq4ig/exec';
 const COMPLAINT_URL = 'https://script.google.com/macros/s/AKfycbxAxIY7uGqBnR6FxS8zEp4epc8bzKggMCTNO3PZES7DApeULIrV1FTEjx71St0Npl0k/exec';
 
+// ── User table (matches cash/payroll passwords) ────────────────────────────
+const MANAGER_USERS = {
+  '0316': { username: 'Eric',  displayName: 'Eric'  },
+  '0421': { username: 'Kevin', displayName: 'Kevin' },
+  '7788': { username: 'Carol', displayName: 'Carol' },
+  '0719': { username: 'Aries', displayName: 'Aries' },
+  '3074': { username: 'Shawn', displayName: 'Shawn' },
+};
+
 // ══════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════
-let isLoggedIn = false;
-let pinBuffer  = '';
-let dashRange  = 'today';
+let isLoggedIn   = false;
+let currentUser  = null;   // { username, displayName }
+let pinBuffer    = '';
+let dashRange    = 'today';
 let moduleRanges = {
   temperature:'month', maintenance:'month', fuel:'month',
   incidents:'month', roster:'week', cash:'month',
@@ -63,38 +73,52 @@ function updatePinDots(){
   for(let i=0;i<4;i++)
     document.getElementById('pd'+i).classList.toggle('filled',i<pinBuffer.length);
 }
-async function pinSubmit(){
+
+function pinSubmit(){
   if(pinBuffer.length<4){
-    document.getElementById('loginError').textContent='请输入4位PIN码。';
+    document.getElementById('loginError').textContent='请输入4位密码。';
     document.getElementById('loginError').classList.add('show');
     return;
   }
-  showLoading('验证中…');
-  try{
-    const res=await fetch(`${STAFF_URL}?action=verifyManagerDashboard&pin=${pinBuffer}`,{signal:AbortSignal.timeout(8000)});
-    const data=await res.json();
-    hideLoading();
-    if(data.success){
-      isLoggedIn=true;
-      sessionStorage.setItem('ap_mgr_authed','1');
-      sessionStorage.setItem('ap_mgr_exp',String(Date.now()+8*60*60*1000));
-      pinBuffer=''; updatePinDots();
-      document.getElementById('loginScreen').style.display='none';
-      document.getElementById('appShell').style.display='block';
-      startClock();
-      loadDashboard();
-      loadComplaintsBackground();
-    }else{
-      document.getElementById('loginError').textContent='PIN码错误，请重试。';
-      document.getElementById('loginError').classList.add('show');
-      pinBuffer=''; updatePinDots();
-    }
-  }catch(e){
-    hideLoading();
-    document.getElementById('loginError').textContent='连接错误，请重试。';
+  const user = MANAGER_USERS[pinBuffer];
+  if(user){
+    isLoggedIn  = true;
+    currentUser = user;
+    // Store in sessionStorage so cash/payroll pages skip login
+    sessionStorage.setItem('ap_user', JSON.stringify(user));
+    sessionStorage.setItem('ap_lang', 'zh');
+    sessionStorage.setItem('ap_mgr_authed','1');
+    sessionStorage.setItem('ap_mgr_exp', String(Date.now()+8*60*60*1000));
+    pinBuffer=''; updatePinDots();
+    document.getElementById('loginScreen').style.display='none';
+    showLauncher();
+  } else {
+    document.getElementById('loginError').textContent='密码错误，请重试。';
     document.getElementById('loginError').classList.add('show');
     pinBuffer=''; updatePinDots();
   }
+}
+
+// ── Launcher screen (shown after login, before choosing module) ───────────
+function showLauncher(){
+  document.getElementById('launcherScreen').style.display='flex';
+  document.getElementById('launcher-name').textContent = currentUser.displayName;
+}
+
+function launchDashboard(){
+  document.getElementById('launcherScreen').style.display='none';
+  document.getElementById('appShell').style.display='block';
+  startClock();
+  loadDashboard();
+  loadComplaintsBackground();
+}
+
+function launchCash(){
+  window.location.href = 'index.html';
+}
+
+function launchPayroll(){
+  window.location.href = 'payroll.html';
 }
 
 function staffApi(action,extra=''){
@@ -107,10 +131,13 @@ function fuelApi(action,extra=''){
 }
 
 function logout(){
-  isLoggedIn=false;
+  isLoggedIn  = false;
+  currentUser = null;
   pinBuffer=''; updatePinDots();
+  sessionStorage.removeItem('ap_user');
   sessionStorage.removeItem('ap_mgr_authed');
   sessionStorage.removeItem('ap_mgr_exp');
+  document.getElementById('launcherScreen').style.display='none';
   document.getElementById('loginScreen').style.display='flex';
   document.getElementById('appShell').style.display='none';
   document.getElementById('loginError').classList.remove('show');
@@ -364,7 +391,6 @@ function renderTablePage(mod){
   if(mod==='cash') html=renderCashRows(pageRows);
   if(mod==='cigarette') html=renderCigaretteRows(pageRows);
   if(mod==='newspaper') html=renderNewspaperRows(pageRows);
-  // fuel and incidents are handled by their own renderers directly
 
   if(mod!=='fuel'&&mod!=='incidents'){
     const bodyIds={temperature:'tempBody',maintenance:'maintBody',roster:'rosterBody',cash:'cashBody',cigarette:'cigBody',newspaper:'newspaperBody'};
