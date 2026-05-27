@@ -32,7 +32,7 @@
     <div class="login-logo">⛽</div>
     <div class="login-brand">Aries Petroleum</div>
     <div class="login-title">管理后台</div>
-    <div class="login-sub">请输入4位数PIN码登录管理后台</div>
+    <div class="login-sub">请输入密码登录</div>
     <div class="pin-wrap" id="pinDots">
       <div class="pin-dot" id="pd0"></div>
       <div class="pin-dot" id="pd1"></div>
@@ -53,12 +53,62 @@
       <button class="num-btn" onclick="pinPress('0')">0</button>
       <button class="num-btn enter" onclick="pinSubmit()">ENTER</button>
     </div>
-    <div class="login-error" id="loginError">PIN码错误，请重试。</div>
+    <div class="login-error" id="loginError">密码错误，请重试。</div>
+  </div>
+</div>
+
+<!-- LAUNCHER -->
+<div id="launcherScreen" style="display:none;min-height:100vh;align-items:center;justify-content:center;background:var(--bg)">
+  <div style="width:100%;max-width:400px;padding:32px 20px;text-align:center">
+    <div style="font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">欢迎回来</div>
+    <div style="font-family:var(--mono);font-size:28px;font-weight:700;color:var(--text);margin-bottom:4px" id="launcher-name">—</div>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:36px;letter-spacing:.05em">请选择功能</div>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+
+      <button onclick="launchDashboard()" style="background:var(--surface2);border:1.5px solid var(--border2);border-radius:14px;padding:20px 24px;cursor:pointer;text-align:left;transition:all .18s;display:flex;align-items:center;gap:16px;width:100%"
+        onmouseover="this.style.borderColor='var(--accent)';this.style.background='var(--ok-bg)'"
+        onmouseout="this.style.borderColor='var(--border2)';this.style.background='var(--surface2)'">
+        <span style="font-size:28px;flex-shrink:0">📊</span>
+        <div style="text-align:left">
+          <div style="font-family:var(--sans);font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px">管理后台</div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">Dashboard · 数据总览 · 报表</div>
+        </div>
+        <span style="margin-left:auto;color:var(--muted);font-size:20px">›</span>
+      </button>
+
+      <button onclick="launchCash()" style="background:var(--surface2);border:1.5px solid var(--border2);border-radius:14px;padding:20px 24px;cursor:pointer;text-align:left;transition:all .18s;display:flex;align-items:center;gap:16px;width:100%"
+        onmouseover="this.style.borderColor='var(--accent2)';this.style.background='rgba(34,211,238,.08)'"
+        onmouseout="this.style.borderColor='var(--border2)';this.style.background='var(--surface2)'">
+        <span style="font-size:28px;flex-shrink:0">💰</span>
+        <div style="text-align:left">
+          <div style="font-family:var(--sans);font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px">现金管理</div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">四站现金 · 主管余额 · 流水</div>
+        </div>
+        <span style="margin-left:auto;color:var(--muted);font-size:20px">›</span>
+      </button>
+
+      <button onclick="launchPayroll()" style="background:var(--surface2);border:1.5px solid var(--border2);border-radius:14px;padding:20px 24px;cursor:pointer;text-align:left;transition:all .18s;display:flex;align-items:center;gap:16px;width:100%"
+        onmouseover="this.style.borderColor='var(--purple)';this.style.background='rgba(167,139,250,.08)'"
+        onmouseout="this.style.borderColor='var(--border2)';this.style.background='var(--surface2)'">
+        <span style="font-size:28px;flex-shrink:0">📋</span>
+        <div style="text-align:left">
+          <div style="font-family:var(--sans);font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px">工资管理</div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">员工工资 · 周期 · CASH / TFN</div>
+        </div>
+        <span style="margin-left:auto;color:var(--muted);font-size:20px">›</span>
+      </button>
+
+    </div>
+
+    <button onclick="logout()" style="margin-top:28px;background:none;border:none;font-family:var(--mono);font-size:11px;color:var(--muted);cursor:pointer;letter-spacing:.08em;text-decoration:underline">
+      退出登录
+    </button>
   </div>
 </div>
 
 <!-- APP SHELL -->
-<div id="appShell">
+<div id="appShell" style="display:none">
 
   <div class="topbar">
     <div class="topbar-left">
@@ -70,6 +120,7 @@
     </div>
     <div class="topbar-right">
       <div class="topbar-time" id="topbarTime"></div>
+      <button class="logout-btn" onclick="backToLauncher()" style="margin-right:6px">← 返回</button>
       <button class="logout-btn" onclick="logout()">退出登录</button>
     </div>
   </div>
@@ -483,8 +534,6 @@
           <div class="page-title">会员奖励</div>
           <div class="page-sub">咖啡集点 · 洗三送一 · 包月会员 · 顾客反馈</div>
         </div>
-
-        <!-- Summary stats -->
         <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
           <div class="stat-card stat-red"><div class="stat-card-stripe" style="background:var(--danger)"></div><span class="stat-card-icon">⏳</span><div class="stat-card-value" id="rw-stat-pending">—</div><div class="stat-card-label">待确认</div><div class="stat-card-sub">咖啡 + 洗车</div></div>
           <div class="stat-card stat-blue"><div class="stat-card-stripe" style="background:var(--accent2)"></div><span class="stat-card-icon">☕</span><div class="stat-card-value" id="rw-stat-coffee-today">—</div><div class="stat-card-label">今日咖啡确认</div></div>
@@ -493,8 +542,6 @@
           <div class="stat-card stat-green"><div class="stat-card-stripe" style="background:var(--accent)"></div><span class="stat-card-icon">☕</span><div class="stat-card-value" id="rw-stat-coffee-members">—</div><div class="stat-card-label">咖啡会员</div></div>
           <div class="stat-card stat-orange"><div class="stat-card-stripe" style="background:var(--warn)"></div><span class="stat-card-icon">🚗</span><div class="stat-card-value" id="rw-stat-wash-members">—</div><div class="stat-card-label">洗三送一会员</div></div>
         </div>
-
-        <!-- Tabs -->
         <div class="filters-bar" id="rewards-tab-bar" style="margin-top:8px">
           <div class="filter-group">
             <button class="filter-btn active" onclick="setRewardsTab('coffee',this)">☕ 咖啡集点</button>
@@ -503,47 +550,28 @@
             <button class="filter-btn" onclick="setRewardsTab('feedback',this)">💬 顾客反馈</button>
           </div>
         </div>
-
-        <!-- Coffee pane -->
         <div id="rw-pane-coffee">
           <div class="section">
             <div class="section-head"><div class="section-head-left"><span>☕</span><span class="section-head-title">咖啡集点会员</span></div><span class="section-count" id="rw-coffee-count">—</span></div>
-            <div class="table-toolbar">
-              <input class="search-input" id="rw-coffee-search" placeholder="搜索姓名、手机…" oninput="renderCoffeeMembers()">
-              <div class="pagination" id="rw-coffee-pagination"></div>
-            </div>
+            <div class="table-toolbar"><input class="search-input" id="rw-coffee-search" placeholder="搜索姓名、手机…" oninput="renderCoffeeMembers()"><div class="pagination" id="rw-coffee-pagination"></div></div>
             <div class="table-wrap"><table><thead><tr><th>姓名</th><th>手机</th><th>已确认次数</th><th>集点进度</th><th>已领免费</th><th>详情</th></tr></thead><tbody id="rw-coffee-body"></tbody></table></div>
           </div>
         </div>
-
-        <!-- Wash pane -->
         <div id="rw-pane-wash" style="display:none">
           <div class="section">
             <div class="section-head"><div class="section-head-left"><span>🚗</span><span class="section-head-title">洗三送一会员</span></div><span class="section-count" id="rw-wash-count">—</span></div>
-            <div class="table-toolbar">
-              <input class="search-input" id="rw-wash-search" placeholder="搜索手机…" oninput="renderWashMembers()">
-              <div class="pagination" id="rw-wash-pagination"></div>
-            </div>
+            <div class="table-toolbar"><input class="search-input" id="rw-wash-search" placeholder="搜索手机…" oninput="renderWashMembers()"><div class="pagination" id="rw-wash-pagination"></div></div>
             <div class="table-wrap"><table><thead><tr><th>手机</th><th>已确认次数</th><th>进度</th><th>已领免费</th><th>详情</th></tr></thead><tbody id="rw-wash-body"></tbody></table></div>
           </div>
         </div>
-
-        <!-- Monthly pane -->
         <div id="rw-pane-monthly" style="display:none">
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
-            <span id="rw-monthly-expiring" style="font-size:12px;color:var(--warn);font-weight:700"></span>
-          </div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px"><span id="rw-monthly-expiring" style="font-size:12px;color:var(--warn);font-weight:700"></span></div>
           <div class="section">
             <div class="section-head"><div class="section-head-left"><span>💳</span><span class="section-head-title">包月会员</span></div><span class="section-count" id="rw-monthly-count">—</span></div>
-            <div class="table-toolbar">
-              <input class="search-input" id="rw-monthly-search" placeholder="搜索车牌、手机…" oninput="renderMonthlyMembers()">
-              <div class="pagination" id="rw-monthly-pagination"></div>
-            </div>
+            <div class="table-toolbar"><input class="search-input" id="rw-monthly-search" placeholder="搜索车牌、手机…" oninput="renderMonthlyMembers()"><div class="pagination" id="rw-monthly-pagination"></div></div>
             <div class="table-wrap"><table><thead><tr><th>车牌</th><th>手机</th><th>套餐</th><th>开始日期</th><th>到期日期</th><th>已确认次数</th><th>详情</th></tr></thead><tbody id="rw-monthly-body"></tbody></table></div>
           </div>
         </div>
-
-        <!-- Feedback pane -->
         <div id="rw-pane-feedback" style="display:none">
           <div class="section">
             <div class="section-head">
@@ -562,7 +590,6 @@
             <div class="table-wrap"><table><thead><tr><th>日期</th><th>站点</th><th>评分</th><th>内容</th><th>姓名</th><th>邮箱</th></tr></thead><tbody id="rw-feedback-body"></tbody></table></div>
           </div>
         </div>
-
       </div><!-- /page-rewards -->
 
     </div><!-- /main -->
@@ -599,14 +626,18 @@
 <script src="js/complaints.js"></script>
 <script src="js/rewards.js"></script>
 <script>
-// ── Patch showPage to handle rewards ──
+// ── Back to launcher without logging out ──────────────────────────────────
+function backToLauncher(){
+  document.getElementById('appShell').style.display='none';
+  document.getElementById('launcherScreen').style.display='flex';
+}
+
+// ── Patch showPage to handle rewards ──────────────────────────────────────
 const _origShowPage = showPage;
 showPage = function(id){
-  // Update drawer active state
   document.querySelectorAll('.drawer-item').forEach(n=>n.classList.remove('active'));
   const dn = document.getElementById('dnav-'+id);
   if(dn) dn.classList.add('active');
-
   if(id === 'rewards'){
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -619,14 +650,13 @@ showPage = function(id){
   _origShowPage(id);
 };
 
-// ── Patch loadDashboard to also load rewards stats ──
+// ── Patch loadDashboard to also load rewards stats ────────────────────────
 const _origLoadDashboard = loadDashboard;
 loadDashboard = async function(){
   await _origLoadDashboard();
   loadRewardsDashboardStats();
 };
 
-// ── Patch moduleRanges and tableState to include rewards ──
 moduleRanges.rewards = 'all';
 </script>
 
