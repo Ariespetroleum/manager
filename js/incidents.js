@@ -96,7 +96,14 @@ async function loadFuel(force=false){
   showLoading('加载中…');
   try{
     const fuelUrl=fuelApi('getFuelDashboard');
-    if(!fuelUrl) return;
+    if(!fuelUrl){
+      // FIX: previously returned here without hiding the spinner or
+      // resetting _loading — that left the overlay stuck forever and
+      // permanently blocked all future loadFuel() calls.
+      hideLoading();
+      cache.fuel._loading=false;
+      return;
+    }
     const res=await fetch(fuelUrl,{signal:AbortSignal.timeout(10000)});
     const data=await res.json();
     hideLoading();
@@ -116,11 +123,25 @@ async function loadFuel(force=false){
   }
 }
 
+// Helper: like filterByRange, but checks Date OR Timestamp — some Sheet
+// rows come back with a `Timestamp` column instead of `Date` (this is
+// already how the dashboard's background fuel-count widget reads it in
+// dashboard.js: `r.Date||r.Timestamp`). The old filterByRange(arr,'Date',range)
+// call here only checked `Date`, so any row that only had `Timestamp`
+// was silently dropped — data existed in the Sheet but never rendered.
+function filterFuelByRange(arr,range){
+  const{from,to}=getRangeDates(range);
+  return arr.filter(r=>{
+    const d=toLocalDateKey(r.Date||r.Timestamp||'');
+    return d>=from&&d<=to;
+  });
+}
+
 function renderFuel(station){
   const range=moduleRanges.fuel;
-  let dips=filterByRange(cache.fuel.dips||[],'Date',range);
-  let delivery=filterByRange(cache.fuel.delivery||[],'Date',range);
-  let cost=filterByRange(cache.fuel.cost||[],'Date',range);
+  let dips=filterFuelByRange(cache.fuel.dips||[],range);
+  let delivery=filterFuelByRange(cache.fuel.delivery||[],range);
+  let cost=filterFuelByRange(cache.fuel.cost||[],range);
   if(station){
     dips=filterByStation(dips,'Station',station);
     delivery=filterByStation(delivery,'Station',station);
