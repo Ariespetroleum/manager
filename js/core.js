@@ -224,9 +224,17 @@ function filterByRange(arr,dateField,range){
   return arr.filter(r=>{const d=toLocalDateKey(r[dateField]||'');return d>=from&&d<=to;});
 }
 
+// FIX: station values in the Sheet are full brand-prefixed names
+// (e.g. "Sinopec Frankston", "BP Clayton South", "Liberty Golden Square"),
+// but every station <select> in manager.html only offers the short name
+// (e.g. "Frankston", "Clayton South"). The old exact-match ("===") never
+// matched anything once a specific station was chosen, so every module's
+// station filter silently returned zero rows. Switched to a substring
+// match, which is safe here because each short name is unique within the
+// set of full station names.
 function filterByStation(arr,field,station){
   if(!station) return arr;
-  return arr.filter(r=>String(r[field]||'')===station);
+  return arr.filter(r=>String(r[field]||'').includes(station));
 }
 
 function formatDateAU(v){
